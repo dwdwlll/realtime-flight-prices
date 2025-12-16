@@ -90,7 +90,7 @@ class FlightSearchEngine:
             航班列表
         """
         # 生成缓存key
-        cache_key = f"{departure}-{arrival}-{date}"
+        cache_key = f"{departure}-{arrival}-{date or 'no_date'}"
         
         # 检查缓存
         current_time = time.time()
@@ -262,9 +262,22 @@ class FlightPriceApp:
             # 过滤空字符串
             dates = [date for date in dates if date]
             
+            # 验证日期格式
+            valid_dates = []
+            for date in dates:
+                try:
+                    # 验证日期格式
+                    datetime.strptime(date, "%Y-%m-%d")
+                    valid_dates.append(date)
+                except ValueError:
+                    print(f"\n警告：日期格式错误 '{date}'，应为 YYYY-MM-DD 格式，已忽略")
+                    time.sleep(1)
+            
+            dates = valid_dates
+            
             # 检查日期数量
             if len(dates) != len(cities) - 1:
-                print(f"\n警告：日期数量({len(dates)})与行程段数({len(cities)-1})不匹配")
+                print(f"\n警告：有效日期数量({len(dates)})与行程段数({len(cities)-1})不匹配")
                 print("将按顺序使用已输入的日期，缺少的将不显示")
                 time.sleep(2)
         
