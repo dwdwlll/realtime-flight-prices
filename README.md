@@ -173,15 +173,47 @@ python3 Main.py
 
 ### 对接真实 API
 
-如果要对接真实的航空公司或携程 API，只需修改 `FlightSearchEngine` 类中的 `search_flights` 方法：
+系统已预留真实API集成接口，支持对接各种航班数据API。
+
+#### 快速开始
+
+1. **查看集成指南**：详细说明请参考 `API_INTEGRATION_GUIDE.md`
+
+2. **安装依赖**：
+```bash
+pip install requests python-dotenv
+```
+
+3. **配置API密钥**：
+```bash
+export FLIGHT_API_KEY="your_api_key"
+export FLIGHT_API_SECRET="your_api_secret"
+```
+
+4. **启用API**：在 `Main.py` 中取消注释 `_fetch_real_flights_from_api` 方法中的代码
+
+#### 支持的API服务
+
+- **Amadeus Flight API** (推荐) - 提供免费测试额度
+- **Skyscanner API** - 需商业合作
+- **携程API** - 需商业合作
+- **去哪儿API** - 需商业合作
+- 其他符合REST标准的航班API
+
+#### 代码示例
 
 ```python
 def search_flights(self, departure: str, arrival: str, date: str = None) -> List[Flight]:
-    # 替换为真实 API 调用
-    response = requests.get(f"https://api.example.com/flights?from={departure}&to={arrival}")
-    # 解析响应并创建 Flight 对象
-    return parse_flights(response.json())
+    # 方法1：使用模拟数据（默认）
+    flights = self._generate_mock_flights(departure, arrival, date)
+    
+    # 方法2：使用真实API（配置密钥后启用）
+    # flights = self._fetch_real_flights_from_api(departure, arrival, date)
+    
+    return flights
 ```
+
+**详细集成步骤和示例代码请查看**: `API_INTEGRATION_GUIDE.md`
 
 ### 添加更多功能
 

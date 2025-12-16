@@ -1,14 +1,53 @@
 # 实时航班价格查询系统依赖
 # Real-time Flight Price Query System Dependencies
 
-# 当前版本仅使用 Python 标准库，无需额外依赖
-# Current version uses only Python standard library, no external dependencies required
-
 # Python 版本要求 / Python Version Requirement
 # python>=3.6
 
-# 如需对接真实 API，可能需要以下库：
-# If integrating with real APIs, you may need:
+# ===========================================
+# 基础运行依赖 / Basic Dependencies
+# ===========================================
+# 当前版本使用模拟数据，仅需Python标准库
+# Current version uses mock data, only requires Python standard library
+# (无需安装额外依赖 / No additional dependencies needed)
+
+# ===========================================
+# API集成可选依赖 / Optional API Integration Dependencies
+# ===========================================
+# 如需对接真实航班API，请安装以下依赖：
+# If integrating with real flight APIs, install the following:
+
+# HTTP请求库 (必需) / HTTP Request Library (Required)
 # requests>=2.28.0
-# beautifulsoup4>=4.11.0
-# selenium>=4.8.0
+
+# 环境变量管理 (推荐) / Environment Variable Management (Recommended)
+# python-dotenv>=0.19.0
+
+# JSON解析增强 (可选) / Enhanced JSON Parsing (Optional)
+# ujson>=5.0.0
+
+# 异步请求支持 (可选，用于并发API调用) / Async Support (Optional, for concurrent API calls)
+# aiohttp>=3.8.0
+
+# 数据验证 (可选) / Data Validation (Optional)
+# pydantic>=1.10.0
+
+# ===========================================
+# 安装说明 / Installation Instructions
+# ===========================================
+# 
+# 仅使用模拟数据（默认）:
+# For mock data only (default):
+#   无需安装任何依赖 / No installation needed
+#
+# 集成真实API:
+# For real API integration:
+#   pip install requests python-dotenv
+#
+# 完整功能（包含所有可选依赖）:
+# Full features (including all optional dependencies):
+#   pip install requests python-dotenv aiohttp pydantic ujson
+#
+# 详细集成指南请参考:
+# For detailed integration guide, see:
+#   API_INTEGRATION_GUIDE.md

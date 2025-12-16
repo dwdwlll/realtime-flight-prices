@@ -101,8 +101,12 @@ class FlightSearchEngine:
         # 模拟API查询延迟（实际API调用时可以移除此行）
         time.sleep(random.uniform(0.1, 0.3))
         
-        # 生成模拟航班数据
+        # 获取航班数据（可切换到真实API）
+        # 方法1：使用模拟数据（当前）
         flights = self._generate_mock_flights(departure, arrival, date)
+        
+        # 方法2：使用真实API（配置API密钥后可启用）
+        # flights = self._fetch_real_flights_from_api(departure, arrival, date)
         
         # 更新缓存
         self.cache[cache_key] = flights
@@ -110,8 +114,71 @@ class FlightSearchEngine:
         
         return flights
     
+    def _fetch_real_flights_from_api(self, departure: str, arrival: str, date: str = None) -> List[Flight]:
+        """
+        从真实API获取航班数据（需要配置API密钥）
+        
+        集成示例：
+        1. Amadeus API: https://developers.amadeus.com/
+        2. Skyscanner API: https://partners.skyscanner.net/
+        3. 携程API: 需商业合作
+        
+        使用方法：
+        - 在环境变量中设置 API_KEY 和 API_SECRET
+        - 取消下面代码的注释并根据API文档调整
+        """
+        # 示例：使用 requests 库调用API（需先安装：pip install requests）
+        # import requests
+        # 
+        # api_key = os.environ.get('FLIGHT_API_KEY', '')
+        # if not api_key:
+        #     raise ValueError("请设置环境变量 FLIGHT_API_KEY")
+        # 
+        # # API请求示例（以Amadeus为例）
+        # url = "https://api.amadeus.com/v2/shopping/flight-offers"
+        # headers = {
+        #     "Authorization": f"Bearer {api_key}"
+        # }
+        # params = {
+        #     "originLocationCode": departure,
+        #     "destinationLocationCode": arrival,
+        #     "departureDate": date or datetime.now().strftime("%Y-%m-%d"),
+        #     "adults": 1,
+        #     "max": 10
+        # }
+        # 
+        # try:
+        #     response = requests.get(url, headers=headers, params=params, timeout=10)
+        #     response.raise_for_status()
+        #     data = response.json()
+        #     
+        #     # 解析API响应并创建Flight对象
+        #     flights = []
+        #     for offer in data.get('data', []):
+        #         for itinerary in offer.get('itineraries', []):
+        #             for segment in itinerary.get('segments', []):
+        #                 flight_no = segment.get('carrierCode', '') + segment.get('number', '')
+        #                 airline = segment.get('carrier', {}).get('name', '')
+        #                 dep_time = segment.get('departure', {}).get('at', '').split('T')[1][:5]
+        #                 arr_time = segment.get('arrival', {}).get('at', '').split('T')[1][:5]
+        #                 price = float(offer.get('price', {}).get('total', 0))
+        #                 
+        #                 flight = Flight(flight_no, airline, departure, arrival,
+        #                               dep_time, arr_time, price, date)
+        #                 flights.append(flight)
+        #     
+        #     return flights
+        # except Exception as e:
+        #     print(f"API调用失败: {e}")
+        #     # 失败时回退到模拟数据
+        #     return self._generate_mock_flights(departure, arrival, date)
+        
+        # 当前未配置API，使用模拟数据
+        print("提示：当前使用模拟数据。如需真实数据，请配置API密钥并启用上述代码。")
+        return self._generate_mock_flights(departure, arrival, date)
+    
     def _generate_mock_flights(self, departure: str, arrival: str, date: str = None) -> List[Flight]:
-        """生成模拟航班数据"""
+        """生成模拟航班数据（用于演示和测试）"""
         num_flights = random.randint(3, 8)
         flights = []
         
