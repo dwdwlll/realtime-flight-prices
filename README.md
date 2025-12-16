@@ -171,13 +171,50 @@ python3 Main.py
 
 ## 扩展性
 
-### 对接真实 API
+### 获取真实数据
 
-系统已预留真实API集成接口，支持对接各种航班数据API。
+系统支持三种方式获取真实航班数据：
 
-#### 快速开始
+#### 方式1：网页爬虫（推荐）⭐
 
-1. **查看集成指南**：详细说明请参考 `API_INTEGRATION_GUIDE.md`
+通过模拟网页搜索爬取航班信息，无需API密钥。
+
+**快速开始：**
+
+1. **查看爬虫指南**：详细说明请参考 `WEB_SCRAPING_GUIDE.md`
+
+2. **安装依赖**：
+```bash
+# 方案A：静态页面（简单快速）
+pip install requests beautifulsoup4 lxml
+
+# 方案B：动态页面（功能强大）
+pip install selenium webdriver-manager
+```
+
+3. **启用爬虫**：在 `Main.py` 中取消注释 `_fetch_flights_by_web_scraping` 方法中的代码
+
+4. **调整选择器**：根据目标网站的HTML结构调整CSS选择器
+
+**支持的网站：**
+- 携程 (Ctrip.com) - 使用Selenium
+- 去哪儿 (Qunar.com) - 可用requests或Selenium
+- 飞猪 (Fliggy.com) - 使用Selenium
+- 其他航班搜索网站
+
+**注意事项：**
+- ⚠️ 遵守网站服务条款和robots.txt
+- ⚠️ 控制爬取频率，避免被封IP
+- ⚠️ 网站结构变化需更新选择器
+- ⚠️ 仅用于个人学习和研究
+
+#### 方式2：API集成
+
+对接官方航班数据API，稳定可靠但需要付费。
+
+**快速开始：**
+
+1. **查看API指南**：详细说明请参考 `API_INTEGRATION_GUIDE.md`
 
 2. **安装依赖**：
 ```bash
@@ -192,28 +229,35 @@ export FLIGHT_API_SECRET="your_api_secret"
 
 4. **启用API**：在 `Main.py` 中取消注释 `_fetch_real_flights_from_api` 方法中的代码
 
-#### 支持的API服务
-
+**支持的API服务：**
 - **Amadeus Flight API** (推荐) - 提供免费测试额度
 - **Skyscanner API** - 需商业合作
 - **携程API** - 需商业合作
 - **去哪儿API** - 需商业合作
-- 其他符合REST标准的航班API
 
-#### 代码示例
+#### 方式3：模拟数据（默认）
+
+使用随机生成的模拟数据，用于演示和测试。
+
+**代码切换示例：**
 
 ```python
 def search_flights(self, departure: str, arrival: str, date: str = None) -> List[Flight]:
-    # 方法1：使用模拟数据（默认）
+    # 方法1：使用模拟数据（当前默认）
     flights = self._generate_mock_flights(departure, arrival, date)
     
-    # 方法2：使用真实API（配置密钥后启用）
+    # 方法2：使用网页爬虫（推荐）
+    # flights = self._fetch_flights_by_web_scraping(departure, arrival, date)
+    
+    # 方法3：使用真实API
     # flights = self._fetch_real_flights_from_api(departure, arrival, date)
     
     return flights
 ```
 
-**详细集成步骤和示例代码请查看**: `API_INTEGRATION_GUIDE.md`
+**详细集成步骤和示例代码请查看**: 
+- `WEB_SCRAPING_GUIDE.md` - 网页爬虫指南（12KB，包含完整示例）
+- `API_INTEGRATION_GUIDE.md` - API集成指南（7KB）
 
 ### 添加更多功能
 

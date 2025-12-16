@@ -101,11 +101,14 @@ class FlightSearchEngine:
         # 模拟API查询延迟（实际API调用时可以移除此行）
         time.sleep(random.uniform(0.1, 0.3))
         
-        # 获取航班数据（可切换到真实API）
-        # 方法1：使用模拟数据（当前）
+        # 获取航班数据（可切换数据源）
+        # 方法1：使用模拟数据（当前默认）
         flights = self._generate_mock_flights(departure, arrival, date)
         
-        # 方法2：使用真实API（配置API密钥后可启用）
+        # 方法2：使用网页爬虫（需要安装依赖并配置）
+        # flights = self._fetch_flights_by_web_scraping(departure, arrival, date)
+        
+        # 方法3：使用真实API（配置API密钥后可启用）
         # flights = self._fetch_real_flights_from_api(departure, arrival, date)
         
         # 更新缓存
@@ -113,6 +116,143 @@ class FlightSearchEngine:
         self.last_update[cache_key] = current_time
         
         return flights
+    
+    def _fetch_flights_by_web_scraping(self, departure: str, arrival: str, date: str = None) -> List[Flight]:
+        """
+        通过网页爬虫获取航班数据（模拟网页搜索）
+        
+        支持的网站：
+        1. 携程 (Ctrip) - 需要安装 selenium
+        2. 去哪儿 (Qunar) - 需要安装 requests + beautifulsoup4
+        3. 飞猪 (Fliggy) - 需要安装 selenium
+        
+        依赖安装：
+        pip install selenium beautifulsoup4 requests webdriver-manager
+        
+        注意：网页爬虫可能受到以下限制：
+        - 网站反爬虫机制（需要设置User-Agent、代理等）
+        - 页面结构变化导致爬虫失效
+        - 需要处理动态加载的内容（JavaScript渲染）
+        - 可能需要验证码识别
+        """
+        # 方案1：使用 requests + BeautifulSoup 爬取静态页面
+        # 适用于页面结构简单、无需JavaScript渲染的网站
+        # try:
+        #     import requests
+        #     from bs4 import BeautifulSoup
+        #     
+        #     # 城市名称到拼音的映射（用于URL构建）
+        #     city_pinyin = {
+        #         "北京": "beijing", "上海": "shanghai", "广州": "guangzhou",
+        #         "深圳": "shenzhen", "成都": "chengdu", "杭州": "hangzhou"
+        #     }
+        #     
+        #     dep_py = city_pinyin.get(departure, "beijing")
+        #     arr_py = city_pinyin.get(arrival, "shanghai")
+        #     search_date = date or datetime.now().strftime("%Y-%m-%d")
+        #     
+        #     # 构建搜索URL（示例：去哪儿网格式）
+        #     url = f"https://flight.qunar.com/site/oneway_list.htm?searchDepartureAirport={dep_py}&searchArrivalAirport={arr_py}&searchDepartureTime={search_date}"
+        #     
+        #     headers = {
+        #         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        #     }
+        #     
+        #     response = requests.get(url, headers=headers, timeout=15)
+        #     response.raise_for_status()
+        #     
+        #     soup = BeautifulSoup(response.text, 'html.parser')
+        #     
+        #     # 解析航班信息（需要根据实际网页结构调整选择器）
+        #     flights = []
+        #     flight_items = soup.select('.flight-item')  # 示例选择器
+        #     
+        #     for item in flight_items[:10]:  # 限制返回数量
+        #         try:
+        #             flight_no = item.select_one('.flight-number').text.strip()
+        #             airline = item.select_one('.airline-name').text.strip()
+        #             dep_time = item.select_one('.dep-time').text.strip()
+        #             arr_time = item.select_one('.arr-time').text.strip()
+        #             price_text = item.select_one('.price').text.strip()
+        #             price = float(''.join(filter(str.isdigit, price_text)))
+        #             
+        #             flight = Flight(flight_no, airline, departure, arrival,
+        #                           dep_time, arr_time, price, date)
+        #             flights.append(flight)
+        #         except Exception as e:
+        #             continue
+        #     
+        #     if flights:
+        #         return flights
+        # except Exception as e:
+        #     print(f"网页爬取失败: {e}")
+        
+        # 方案2：使用 Selenium 爬取动态页面
+        # 适用于需要JavaScript渲染的网站（如携程、飞猪）
+        # try:
+        #     from selenium import webdriver
+        #     from selenium.webdriver.common.by import By
+        #     from selenium.webdriver.support.ui import WebDriverWait
+        #     from selenium.webdriver.support import expected_conditions as EC
+        #     from selenium.webdriver.chrome.options import Options
+        #     from webdriver_manager.chrome import ChromeDriverManager
+        #     
+        #     # 配置浏览器选项
+        #     chrome_options = Options()
+        #     chrome_options.add_argument('--headless')  # 无头模式
+        #     chrome_options.add_argument('--no-sandbox')
+        #     chrome_options.add_argument('--disable-dev-shm-usage')
+        #     chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+        #     chrome_options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+        #     
+        #     # 初始化浏览器
+        #     driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+        #     
+        #     try:
+        #         # 构建搜索URL（示例：携程格式）
+        #         search_date = date or datetime.now().strftime("%Y-%m-%d")
+        #         url = f"https://flights.ctrip.com/online/list/oneway-{departure}-{arrival}?depdate={search_date}"
+        #         
+        #         driver.get(url)
+        #         
+        #         # 等待页面加载
+        #         wait = WebDriverWait(driver, 10)
+        #         wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'flight-list')))
+        #         
+        #         # 解析航班信息
+        #         flights = []
+        #         flight_elements = driver.find_elements(By.CLASS_NAME, 'flight-item')
+        #         
+        #         for elem in flight_elements[:10]:
+        #             try:
+        #                 flight_no = elem.find_element(By.CLASS_NAME, 'flight-number').text
+        #                 airline = elem.find_element(By.CLASS_NAME, 'airline-name').text
+        #                 dep_time = elem.find_element(By.CLASS_NAME, 'dep-time').text
+        #                 arr_time = elem.find_element(By.CLASS_NAME, 'arr-time').text
+        #                 price_text = elem.find_element(By.CLASS_NAME, 'price').text
+        #                 price = float(''.join(filter(str.isdigit, price_text)))
+        #                 
+        #                 flight = Flight(flight_no, airline, departure, arrival,
+        #                               dep_time, arr_time, price, date)
+        #                 flights.append(flight)
+        #             except Exception:
+        #                 continue
+        #         
+        #         driver.quit()
+        #         
+        #         if flights:
+        #             return flights
+        #     finally:
+        #         driver.quit()
+        # except Exception as e:
+        #     print(f"Selenium爬取失败: {e}")
+        
+        # 爬虫未配置或失败，回退到模拟数据
+        print("提示：网页爬虫未配置或失败，使用模拟数据。")
+        print("如需启用爬虫，请：")
+        print("1. 安装依赖: pip install selenium beautifulsoup4 requests webdriver-manager")
+        print("2. 在上述代码中取消注释并根据目标网站调整选择器")
+        return self._generate_mock_flights(departure, arrival, date)
     
     def _fetch_real_flights_from_api(self, departure: str, arrival: str, date: str = None) -> List[Flight]:
         """
