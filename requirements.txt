@@ -72,8 +72,8 @@
 # For real API integration:
 #   pip install requests python-dotenv
 #
-# 完整功能（包含所有可选依赖）:
-# Full features (including all optional dependencies):
+# 完整功能（网页爬虫 + API集成）:
+# Full features (web scraping + API integration):
 #   pip install requests beautifulsoup4 lxml selenium webdriver-manager python-dotenv
 #
 # 详细指南请参考 / For detailed guides, see:

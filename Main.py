@@ -155,7 +155,7 @@ class FlightSearchEngine:
         #     url = f"https://flight.qunar.com/site/oneway_list.htm?searchDepartureAirport={dep_py}&searchArrivalAirport={arr_py}&searchDepartureTime={search_date}"
         #     
         #     headers = {
-        #         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        #         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         #     }
         #     
         #     response = requests.get(url, headers=headers, timeout=15)
@@ -174,7 +174,7 @@ class FlightSearchEngine:
         #             dep_time = item.select_one('.dep-time').text.strip()
         #             arr_time = item.select_one('.arr-time').text.strip()
         #             price_text = item.select_one('.price').text.strip()
-        #             price = float(''.join(filter(str.isdigit, price_text)))
+        #             price = float(''.join(filter(lambda x: x.isdigit() or x == '.', price_text)))
         #             
         #             flight = Flight(flight_no, airline, departure, arrival,
         #                           dep_time, arr_time, price, date)
@@ -206,7 +206,8 @@ class FlightSearchEngine:
         #     chrome_options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
         #     
         #     # 初始化浏览器
-        #     driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+        #     from selenium.webdriver.chrome.service import Service
+        #     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         #     
         #     try:
         #         # 构建搜索URL（示例：携程格式）
@@ -230,7 +231,7 @@ class FlightSearchEngine:
         #                 dep_time = elem.find_element(By.CLASS_NAME, 'dep-time').text
         #                 arr_time = elem.find_element(By.CLASS_NAME, 'arr-time').text
         #                 price_text = elem.find_element(By.CLASS_NAME, 'price').text
-        #                 price = float(''.join(filter(str.isdigit, price_text)))
+        #                 price = float(''.join(filter(lambda x: x.isdigit() or x == '.', price_text)))
         #                 
         #                 flight = Flight(flight_no, airline, departure, arrival,
         #                               dep_time, arr_time, price, date)
