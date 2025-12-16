@@ -160,7 +160,7 @@ def _fetch_real_flights_from_api(self, departure: str, arrival: str, date: str =
         # 城市代码映射 (需要根据实际情况扩展)
         city_codes = {
             "北京": "PEK",
-            "上海": "SHA",
+            "上海": "PVG",  # 浦东国际机场，也可用SHA(虹桥)
             "广州": "CAN",
             "深圳": "SZX",
             "成都": "CTU",
@@ -207,7 +207,7 @@ def _fetch_real_flights_from_api(self, departure: str, arrival: str, date: str =
                     price = float(offer.get('price', {}).get('total', 0))
                     
                     flight = Flight(flight_no, airline, departure, arrival,
-                                  dep_time, arr_time, price, date)
+                                  dep_time, arr_time, price, flight_date)
                     flights.append(flight)
         
         return flights if flights else self._generate_mock_flights(departure, arrival, date)
