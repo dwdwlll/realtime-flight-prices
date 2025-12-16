@@ -65,6 +65,10 @@ class FlightSearchEngine:
         "青岛", "厦门", "大连", "昆明", "哈尔滨", "济南"
     ]
     
+    # 配置常量
+    CACHE_TIMEOUT_SECONDS = 5  # 缓存超时时间（秒）
+    MAX_ITINERARIES = 50  # 最多返回的行程方案数量
+    
     def __init__(self):
         self.cache = {}  # 缓存查询结果
         self.last_update = {}  # 记录上次更新时间
@@ -85,14 +89,14 @@ class FlightSearchEngine:
         # 生成缓存key
         cache_key = f"{departure}-{arrival}-{date}"
         
-        # 检查缓存（5秒内使用缓存）
+        # 检查缓存
         current_time = time.time()
         if (cache_key in self.cache and 
-            current_time - self.last_update.get(cache_key, 0) < 5):
+            current_time - self.last_update.get(cache_key, 0) < self.CACHE_TIMEOUT_SECONDS):
             return self.cache[cache_key]
         
-        # 模拟API查询延迟
-        time.sleep(random.uniform(0.3, 0.8))
+        # 模拟API查询延迟（实际API调用时可以移除此行）
+        time.sleep(random.uniform(0.1, 0.3))
         
         # 生成模拟航班数据
         flights = self._generate_mock_flights(departure, arrival)
@@ -181,11 +185,14 @@ class FlightSearchEngine:
                 result.append(Itinerary([flight] + combo.flights))
         
         # 限制返回数量以避免组合爆炸
-        return result[:50]  # 最多返回50个方案
+        return result[:self.MAX_ITINERARIES]
 
 
 class FlightPriceApp:
     """航班价格查询应用主类"""
+    
+    # 配置常量
+    AUTO_REFRESH_INTERVAL_SECONDS = 10  # 自动刷新间隔（秒）
     
     def __init__(self):
         self.engine = FlightSearchEngine()
@@ -323,7 +330,7 @@ class FlightPriceApp:
                 self.display_itineraries(itineraries, refresh_time)
                 
                 print("\n自动刷新中... (Ctrl+C 退出)")
-                time.sleep(10)
+                time.sleep(self.AUTO_REFRESH_INTERVAL_SECONDS)
         
         except KeyboardInterrupt:
             print("\n\n已退出自动刷新模式")
