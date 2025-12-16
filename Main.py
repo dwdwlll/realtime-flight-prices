@@ -19,7 +19,8 @@ import sys
 class Flight:
     """航班信息类"""
     def __init__(self, flight_no: str, airline: str, departure: str, 
-                 arrival: str, dep_time: str, arr_time: str, price: float):
+                 arrival: str, dep_time: str, arr_time: str, price: float,
+                 date: str = None):
         self.flight_no = flight_no
         self.airline = airline
         self.departure = departure
@@ -27,11 +28,13 @@ class Flight:
         self.dep_time = dep_time
         self.arr_time = arr_time
         self.price = price
+        self.date = date  # 日期
     
     def __repr__(self):
+        date_str = f"{self.date} " if self.date else ""
         return (f"航班{self.flight_no} | {self.airline} | "
                 f"{self.departure}->{self.arrival} | "
-                f"{self.dep_time}-{self.arr_time} | ¥{self.price:.2f}")
+                f"{date_str}{self.dep_time}-{self.arr_time} | ¥{self.price:.2f}")
 
 
 class Itinerary:
@@ -99,7 +102,7 @@ class FlightSearchEngine:
         time.sleep(random.uniform(0.1, 0.3))
         
         # 生成模拟航班数据
-        flights = self._generate_mock_flights(departure, arrival)
+        flights = self._generate_mock_flights(departure, arrival, date)
         
         # 更新缓存
         self.cache[cache_key] = flights
@@ -107,7 +110,7 @@ class FlightSearchEngine:
         
         return flights
     
-    def _generate_mock_flights(self, departure: str, arrival: str) -> List[Flight]:
+    def _generate_mock_flights(self, departure: str, arrival: str, date: str = None) -> List[Flight]:
         """生成模拟航班数据"""
         num_flights = random.randint(3, 8)
         flights = []
@@ -134,17 +137,18 @@ class FlightSearchEngine:
             price = base_price + price_fluctuation
             
             flight = Flight(flight_no, airline, departure, arrival,
-                          dep_time, arr_time, price)
+                          dep_time, arr_time, price, date)
             flights.append(flight)
         
         return flights
     
-    def plan_itinerary(self, cities: List[str]) -> List[Itinerary]:
+    def plan_itinerary(self, cities: List[str], dates: List[str] = None) -> List[Itinerary]:
         """
         规划多城市行程
         
         Args:
             cities: 城市列表，按顺序包含出发地、途径地、目的地
+            dates: 日期列表，每段行程的日期（可选）
         
         Returns:
             可行的行程方案列表
@@ -155,8 +159,10 @@ class FlightSearchEngine:
         # 获取每段航班
         all_segments = []
         for i in range(len(cities) - 1):
-            print(f"正在搜索 {cities[i]} -> {cities[i+1]} 的航班...")
-            flights = self.search_flights(cities[i], cities[i+1])
+            date = dates[i] if dates and i < len(dates) else None
+            date_str = f" ({date})" if date else ""
+            print(f"正在搜索 {cities[i]} -> {cities[i+1]}{date_str} 的航班...")
+            flights = self.search_flights(cities[i], cities[i+1], date)
             all_segments.append(flights)
         
         # 生成所有可能的组合
@@ -197,6 +203,7 @@ class FlightPriceApp:
     def __init__(self):
         self.engine = FlightSearchEngine()
         self.current_cities = []
+        self.current_dates = []
         self.current_itineraries = []
     
     def clear_screen(self):
@@ -211,8 +218,8 @@ class FlightPriceApp:
         print("=" * 70)
         print()
     
-    def get_cities_input(self) -> List[str]:
-        """获取城市输入"""
+    def get_cities_input(self) -> Tuple[List[str], List[str]]:
+        """获取城市和日期输入"""
         print("请输入行程城市（至少2个城市，用逗号或空格分隔）")
         print("例如：北京,上海,广州  或  北京 上海 广州")
         print("支持多个途径地（大于3个城市）")
@@ -232,9 +239,36 @@ class FlightPriceApp:
         if len(cities) < 2:
             print("\n错误：至少需要输入2个城市！")
             time.sleep(2)
-            return []
+            return [], []
         
-        return cities
+        # 获取每段行程的日期
+        print()
+        print("请输入每段行程的日期（格式：YYYY-MM-DD，用逗号或空格分隔）")
+        print(f"需要输入 {len(cities)-1} 个日期（对应 {len(cities)-1} 段行程）")
+        print("例如：2025-01-15,2025-01-16  或  2025-01-15 2025-01-16")
+        print("（如果不输入日期，直接按回车跳过）")
+        print()
+        
+        date_input = input("请输入日期列表: ").strip()
+        
+        dates = []
+        if date_input:
+            # 支持逗号或空格分隔
+            if ',' in date_input:
+                dates = [date.strip() for date in date_input.split(',')]
+            else:
+                dates = [date.strip() for date in date_input.split()]
+            
+            # 过滤空字符串
+            dates = [date for date in dates if date]
+            
+            # 检查日期数量
+            if len(dates) != len(cities) - 1:
+                print(f"\n警告：日期数量({len(dates)})与行程段数({len(cities)-1})不匹配")
+                print("将按顺序使用已输入的日期，缺少的将不显示")
+                time.sleep(2)
+        
+        return cities, dates
     
     def display_itineraries(self, itineraries: List[Itinerary], 
                            refresh_time: str = None):
@@ -244,7 +278,16 @@ class FlightPriceApp:
         
         if refresh_time:
             print(f"最后更新时间: {refresh_time}")
-        print(f"行程路线: {' -> '.join(self.current_cities)}")
+        
+        # 构建行程路线显示（包含日期）
+        route_parts = []
+        for i, city in enumerate(self.current_cities):
+            if i < len(self.current_cities) - 1 and self.current_dates and i < len(self.current_dates):
+                route_parts.append(f"{city}({self.current_dates[i]})")
+            else:
+                route_parts.append(city)
+        
+        print(f"行程路线: {' -> '.join(route_parts)}")
         print(f"找到 {len(itineraries)} 个可行方案（已按价格从低到高排序）")
         print("-" * 70)
         
@@ -262,12 +305,13 @@ class FlightPriceApp:
     
     def search_menu(self):
         """搜索菜单"""
-        cities = self.get_cities_input()
+        cities, dates = self.get_cities_input()
         
         if not cities:
             return
         
         self.current_cities = cities
+        self.current_dates = dates
         
         # 显示加载动画
         self.clear_screen()
@@ -276,7 +320,7 @@ class FlightPriceApp:
         print()
         
         # 搜索航班
-        itineraries = self.engine.plan_itinerary(cities)
+        itineraries = self.engine.plan_itinerary(cities, dates)
         self.current_itineraries = itineraries
         
         # 显示结果
@@ -297,7 +341,7 @@ class FlightPriceApp:
         self.engine.last_update.clear()
         
         # 重新搜索
-        itineraries = self.engine.plan_itinerary(self.current_cities)
+        itineraries = self.engine.plan_itinerary(self.current_cities, self.current_dates)
         self.current_itineraries = itineraries
         
         # 显示更新后的结果
@@ -322,7 +366,7 @@ class FlightPriceApp:
                 self.engine.last_update.clear()
                 
                 # 重新搜索
-                itineraries = self.engine.plan_itinerary(self.current_cities)
+                itineraries = self.engine.plan_itinerary(self.current_cities, self.current_dates)
                 self.current_itineraries = itineraries
                 
                 # 显示结果
