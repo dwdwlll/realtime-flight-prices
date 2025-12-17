@@ -1,0 +1,81 @@
+# 实时航班价格查询系统依赖
+# Real-time Flight Price Query System Dependencies
+
+# Python 版本要求 / Python Version Requirement
+# python>=3.6
+
+# ===========================================
+# 基础运行依赖 / Basic Dependencies
+# ===========================================
+# 当前版本使用模拟数据，仅需Python标准库
+# Current version uses mock data, only requires Python standard library
+# (无需安装额外依赖 / No additional dependencies needed)
+
+# ===========================================
+# 网页爬虫依赖 / Web Scraping Dependencies
+# ===========================================
+# 如需通过爬虫获取真实数据，请安装以下依赖：
+# If using web scraping to fetch real data, install the following:
+
+# 方案1：静态页面爬虫 (requests + BeautifulSoup)
+# Option 1: Static Page Scraping (requests + BeautifulSoup)
+# requests>=2.28.0
+# beautifulsoup4>=4.11.0
+# lxml>=4.9.0
+
+# 方案2：动态页面爬虫 (Selenium)
+# Option 2: Dynamic Page Scraping (Selenium)
+# selenium>=4.8.0
+# webdriver-manager>=3.8.0
+
+# 反爬虫增强 (可选) / Anti-Scraping Enhancement (Optional)
+# selenium-stealth>=1.0.6
+# fake-useragent>=1.4.0
+
+# ===========================================
+# API集成可选依赖 / Optional API Integration Dependencies
+# ===========================================
+# 如需对接真实航班API，请安装以下依赖：
+# If integrating with real flight APIs, install the following:
+
+# HTTP请求库 (必需) / HTTP Request Library (Required)
+# requests>=2.28.0
+
+# 环境变量管理 (推荐) / Environment Variable Management (Recommended)
+# python-dotenv>=0.19.0
+
+# JSON解析增强 (可选) / Enhanced JSON Parsing (Optional)
+# ujson>=5.0.0
+
+# 异步请求支持 (可选，用于并发API调用) / Async Support (Optional, for concurrent API calls)
+# aiohttp>=3.8.0
+
+# 数据验证 (可选) / Data Validation (Optional)
+# pydantic>=1.10.0
+
+# ===========================================
+# 安装说明 / Installation Instructions
+# ===========================================
+# 
+# 仅使用模拟数据（默认）:
+# For mock data only (default):
+#   无需安装任何依赖 / No installation needed
+#
+# 使用网页爬虫获取真实数据（推荐）:
+# For web scraping real data (recommended):
+#   # 静态页面
+#   pip install requests beautifulsoup4 lxml
+#   # 动态页面
+#   pip install selenium webdriver-manager
+#
+# 集成真实API:
+# For real API integration:
+#   pip install requests python-dotenv
+#
+# 完整功能（网页爬虫 + API集成）:
+# Full features (web scraping + API integration):
+#   pip install requests beautifulsoup4 lxml selenium webdriver-manager python-dotenv
+#
+# 详细指南请参考 / For detailed guides, see:
+#   WEB_SCRAPING_GUIDE.md - 网页爬虫集成指南
+#   API_INTEGRATION_GUIDE.md - API集成指南
